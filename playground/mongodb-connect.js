@@ -15,7 +15,7 @@ MongoClient.connect("mongodb://localhost:27017/TodoApp", (err, db) => {
 
   db.collection('Todos').insertOne(
     {
-      text:"Hola Jalapnero",
+      text:"Hola Cebollin",
       completed:false
     },
     (err, result) => {
@@ -24,7 +24,39 @@ MongoClient.connect("mongodb://localhost:27017/TodoApp", (err, db) => {
       }
       console.log(JSON.stringify(result.ops, undefined, 2));
     });
-
+    db.collection('Todos').insertOne(
+      {
+        text:"Aqui comiendo ajo",
+        completed:true
+      },
+      (err, result) => {
+        if(err){
+          return console.log(" Error: Unable to insert todo");
+        }
+        console.log(JSON.stringify(result.ops, undefined, 2));
+      });
+      db.collection('Todos').insertOne(
+        {
+          text:"Hola Tomate Pimiento",
+          completed:true
+        },
+        (err, result) => {
+          if(err){
+            return console.log(" Error: Unable to insert todo");
+          }
+          console.log(JSON.stringify(result.ops, undefined, 2));
+        });
+        db.collection('Todos').insertOne(
+          {
+            text:"Hola Tomate del Huerto",
+            completed:false
+          },
+          (err, result) => {
+            if(err){
+              return console.log(" Error: Unable to insert todo");
+            }
+            console.log(JSON.stringify(result.ops, undefined, 2));
+          });
   // db.collection('Users').insertOne(
   //   {
   //     name:"Jalapeno",
