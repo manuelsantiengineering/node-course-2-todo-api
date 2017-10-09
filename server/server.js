@@ -11,6 +11,7 @@ var {User} = require("./models/user");
 
 
 var app = express();
+var port = process.env.PORT || 3000;
 // Here we configure our routes using CRUD (Create Read Update Delete)
 // We are gonna focus on POST
 
@@ -69,50 +70,11 @@ app.get("/todos/:id", (req, res) => {
   }
 });
 
-
-
-
-
-
-app.listen(3000, () => {
-  console.log("Started on port 3000");
+app.listen(port, () => {
+  console.log(`Started on port ${port});
 });
 
 
 module.exports = {
   app
 };
-
-
-
-// var newUser1 = new User({
-//   first_name: "Tomatito",
-//   last_name: "del Huerto",
-//   age: 31,
-//   email: "tomatitodelhuerto@ketchup.com"
-// });
-//
-// var newUser2 = new User({
-//   first_name: "Cebollin",
-//   last_name: "del Huerto",
-//   age: 24,
-//   email: "cebollindelhuerto@ketchup.com"
-// });
-//
-// var newUser3 = new User({
-//   first_name: "Pimientin",
-//   last_name: "Verde",
-//   age: 64
-// });
-//
-// newUser2.save()
-// .then( (doc) => {
-//   console.log(doc);
-//   newUser3.save()
-//   .then( (doc) => {
-//     console.log(doc);
-//   });
-// })
-// .catch( (err) => {
-//   console.log(" Error: Unable to save data ", err);
-// });
