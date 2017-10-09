@@ -29,7 +29,7 @@ app.post("/todos", (req, res) => {
     //console.log(doc);
   })
   .catch( (err) => {
-    console.log("Error", err);
+    //console.log("Error", err);
     res.status(400).send(err);
   });
 });
