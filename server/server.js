@@ -19,7 +19,7 @@ app.use(bodyParser.json());
 
 // /todos is used for resource  creation
 app.post("/todos", (req, res) => {
-  console.log(req.body);
+  // console.log(req.body);
   var todo = new Todo({
     text: req.body.text
   });
@@ -41,7 +41,7 @@ app.get("/todos", (req, res) => {
     res.send({todos});
   })
   .catch( (err) => {
-    console.log("Error", err);
+    // console.log("Error", err);
     res.status(400).send(err);
   });
 });
@@ -59,7 +59,7 @@ app.get("/todos/:id", (req, res) => {
       if(!todo){
         return res.status(404).send("Error: Unable to find id.");
       }
-      console.log("Todo by ID", JSON.stringify(todo, undefined,2));
+      // console.log("Todo by ID", JSON.stringify(todo, undefined,2));
       res.status(200).send({todo});
       // res.send({todo});
     })

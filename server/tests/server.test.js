@@ -1,5 +1,6 @@
 const expect = require("expect");
 const request = require("supertest");
+const {ObjectID} = require("mongodb");
 
 const {app} = require("./../server");
 const {Todo} = require("./../models/todo");
@@ -7,11 +8,13 @@ const {Todo} = require("./../models/todo");
 
 const todosNew = [
   {
+    _id: new ObjectID(),
     text: "First Test todo",
     completed: false,
     completedAt:1
   },
   {
+    _id: new ObjectID(),
     text: "Second Test todo",
     completed: true,
     completedAt: 2
@@ -97,4 +100,34 @@ describe("GET /todos", () => {
     })
     .end(done);
   });
+});
+
+
+describe("GET /todos/:id", () => {
+  it("Should get the doc with a specific id", (done) => {
+    request(app)
+    .get(`/todos/${todosNew[0]._id.toHexString()}`)
+    .expect(200)
+    .expect( (res) => {
+      // expect(res.body.todo).toBe(todosNew[0]);
+      expect(res.body.todo.text).toBe(todosNew[0].text);
+    })
+    .end(done);
+  });
+
+  it("Should return a 404 if id not found", (done) => {
+    var newId = new ObjectID()
+    request(app)
+    .get(`/todos/${newId.toHexString()}`)
+    .expect(404)
+    .end(done);
+  });
+
+  it("Should return a 400 for non-object ids", (done) => {
+    request(app)
+    .get(`/todos/123`)
+    .expect(400)
+    .end(done);
+  });
+
 });
