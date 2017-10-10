@@ -1,7 +1,8 @@
+const {ObjectID} = require("mongodb"); //THis code does the same as the one over it but uses destructuring
+
 const {mongoose} = require("./../server/db/mongoose");
 const {Todo} = require("./../server/models/todo");
 const {User} = require("./../server/models/user");
-const {ObjectID} = require("mongodb"); //THis code does the same as the one over it but uses destructuring
 
 var id = "59d588dd877c063be11d5823";
 var first_name = "Cebollin";
