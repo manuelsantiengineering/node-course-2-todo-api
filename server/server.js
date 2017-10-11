@@ -1,3 +1,4 @@
+require("./config/config");
 //Library imports
 const _ = require("lodash");
 const express = require("express");
@@ -12,7 +13,7 @@ var {User} = require("./models/user");
 
 
 var app = express();
-var port = process.env.PORT || 3000;
+// var port = process.env.PORT || 3000;
 // Here we configure our routes using CRUD (Create Read Update Delete)
 // We are gonna focus on POST
 
@@ -116,8 +117,8 @@ app.patch("/todos/:id", (req, res) => {
 
 });
 //BFT-F6H2-3LW6-CFTR
-app.listen(port, () => {
-  console.log(`Started on port ${port}`);
+app.listen(process.env.PORT, () => {
+  console.log(`Started on port ${process.env.PORT}`);
 });
 
 
