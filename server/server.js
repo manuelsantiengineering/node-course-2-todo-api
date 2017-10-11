@@ -1,6 +1,7 @@
 //Library imports
-var express = require("express");
-var bodyParser = require("body-parser");
+const _ = require("lodash");
+const express = require("express");
+const bodyParser = require("body-parser");
 const {ObjectID} = require("mongodb");
 
 //Local imports
@@ -46,8 +47,7 @@ app.get("/todos", (req, res) => {
 //Fetch a variable that is passed through the URL. /todos/12345
 app.get("/todos/:id", (req, res) => {
   var id = req.params.id;
-  if(!ObjectID.isValid(id))
-  {
+  if(!ObjectID.isValid(id)){
     return res.status(400).send("Error: Not a valid id.");
   }
   else {
@@ -66,8 +66,7 @@ app.get("/todos/:id", (req, res) => {
 
 app.delete("/todos/:id", (req, res) => {
   var id = req.params.id;
-  if(!ObjectID.isValid(id))
-  {
+  if(!ObjectID.isValid(id)){
     return res.status(400).send("Error: Not a valid id.");
   }
   else {
@@ -84,6 +83,39 @@ app.delete("/todos/:id", (req, res) => {
   }
 });
 
+app.patch("/todos/:id", (req, res) => {
+  var id = req.params.id;
+  var body = _.pick(req.body, ["text", "completed"]); // T0 make sure we only get text and completed options
+
+  if(!ObjectID.isValid(id)){
+    return res.status(400).send("Error: Not a valid id.");
+  }
+
+  if(_.isBoolean(body.completed) && body.completed) {
+    body.completedAt = new Date().getTime();
+  }
+  else {
+    body.completed = false;
+    body.completedAt = null;
+  }
+
+  Todo.findByIdAndUpdate(id, {
+    $set: body
+  }, {
+    new: true
+  })
+  .then( (todo) => {
+    if(!todo){
+      return res.status(404).send("Error: Unable to find id.");
+    }
+    res.status(200).send({todo});
+  })
+  .catch ( (err) => {
+    res.status(400).send();
+  });
+
+});
+//BFT-F6H2-3LW6-CFTR
 app.listen(port, () => {
   console.log(`Started on port ${port}`);
 });
