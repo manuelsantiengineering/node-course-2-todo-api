@@ -1,26 +1,49 @@
 require("./config/config");
-//Library imports
-const _ = require("lodash");
+
 const express = require("express");
 const bodyParser = require("body-parser");
 const {ObjectID} = require("mongodb");
-
+const _ = require("lodash");
 //Local imports
-var {mongoose, Schema} = require("./db/mongoose.js");
-//var {mongoose} = require("./db/mongoose");
+const {mongoose, Schema} = require("./db/mongoose.js");
 var {Todo} = require("./models/todo");
 var {User} = require("./models/user");
 
 
 var app = express();
-// var port = process.env.PORT || 3000;
-// Here we configure our routes using CRUD (Create Read Update Delete)
-// We are gonna focus on POST
 
 //Takes the middleware
 app.use(bodyParser.json());
 
-// /todos is used for resource  creation
+app.post("/users", (req, res) => {
+  var body = _.pick(req.body, ["first_name", "last_name", "email", "password"]); // T0 make sure we only get text and completed options
+
+  var newUserToPost = new User(body);
+
+  newUserToPost.save()
+  .then( () => {     // doc is the same as newUserToPost
+    return newUserToPost.generateAuthToken();
+  })
+  .then( (token) => {
+    res.status(200).header('x-auth', token).send(newUserToPost);
+  })
+  .catch( (err) => {
+    res.status(400).send(err);
+  });
+});
+
+app.get("/todos", (req, res) => {
+  Todo.find()
+  .then( (todos) => {
+    res.send({todos});
+  })
+  .catch( (err) => {
+    res.status(400).send(err);
+  });
+});
+
+
+
 app.post("/todos", (req, res) => {
   var todo = new Todo({
     text: req.body.text
@@ -116,10 +139,15 @@ app.patch("/todos/:id", (req, res) => {
   });
 
 });
-//BFT-F6H2-3LW6-CFTR
+
 app.listen(process.env.PORT, () => {
   console.log(`Started on port ${process.env.PORT}`);
 });
+
+
+
+
+
 
 
 module.exports = {

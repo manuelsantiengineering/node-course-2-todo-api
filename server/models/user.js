@@ -1,6 +1,9 @@
+const mongoose = require("mongoose");
+const Schema = mongoose.Schema;
+const validator = require("validator");
+const jwt = require("jsonwebtoken");
+const _ = require("lodash");
 
-var mongoose = require("mongoose");
-var Schema = mongoose.Schema;
 
 var userSchema = new Schema ({
   first_name: {
@@ -15,19 +18,58 @@ var userSchema = new Schema ({
     minlength: [1, "First name must have a length greater than 1"],
     trim: true
   },
-  age: {
-    type: Number,
-    required: [true, "Age must be defined"],
-    min: [18,"Minimum age is 18"],
-    max: [100, "You're too old for this, go have fun"]
-  },
   email: {
     type: String,
-    minlength: [4, "Email name must have a length greater than 5"],
-    default: "none",
-    trim: true
-  }
+    trim: true,
+    required: [true, "Email name must be defined"],
+    unique: true,
+    validate : {
+      validator: validator.isEmail,
+      message: "{VALUE} is not a valid email!"
+    }
+  },
+  password: {
+    type: String,
+    minlength: [6, "Password length must be greater than 6"],
+    required: [true, "Password must be defined"],
+  },
+  tokens: [{
+    access: {
+      type: String,
+      required: true
+    },
+    token : {
+      type: String,
+      required: true
+    }
+  }]
 });
+
+userSchema.methods.toJSON = function () {
+  var user = this;
+  var userObject = user.toObject();
+
+  return _.pick(userObject, ["_id", "first_name", "last_name", "email"]);
+};
+
+userSchema.methods.generateAuthToken = function () {
+  var user = this;
+  var access = 'auth';
+  var token = jwt.sign({
+    _id: user._id.toHexString(),
+    access
+  }, "abc123").toString();
+
+  user.tokens.push({
+    access,
+    token
+  });
+
+  return user.save()
+  .then( () => {
+    return token;
+  });
+};
 
 var User = mongoose.model('User', userSchema);
 
