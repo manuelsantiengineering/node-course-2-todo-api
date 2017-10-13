@@ -8,7 +8,7 @@ const _ = require("lodash");
 const {mongoose, Schema} = require("./db/mongoose.js");
 var {Todo} = require("./models/todo");
 var {User} = require("./models/user");
-
+var {authenticate} = require("./middleware/authenticate");
 
 var app = express();
 
@@ -31,6 +31,24 @@ app.post("/users", (req, res) => {
     res.status(400).send(err);
   });
 });
+
+
+
+app.get("/users/me", authenticate, (req, res) => {
+  res.status(200).send(req.user);
+});
+
+
+
+
+
+
+
+
+
+
+
+
 
 app.get("/todos", (req, res) => {
   Todo.find()
@@ -68,7 +86,6 @@ app.get("/todos", (req, res) => {
   });
 });
 
-//Fetch a variable that is passed through the URL. /todos/12345
 app.get("/todos/:id", (req, res) => {
   var id = req.params.id;
   if(!ObjectID.isValid(id)){

@@ -53,7 +53,7 @@ userSchema.methods.toJSON = function () {
 };
 
 userSchema.methods.generateAuthToken = function () {
-  var user = this;
+  var user = this; //Instance methods get called with the individual document
   var access = 'auth';
   var token = jwt.sign({
     _id: user._id.toHexString(),
@@ -68,6 +68,22 @@ userSchema.methods.generateAuthToken = function () {
   return user.save()
   .then( () => {
     return token;
+  });
+};
+
+userSchema.statics.findByToken = function (token){
+  var User = this; //Model methods get called with model as in here where I use User
+  var decoded;
+
+  try{
+    decoded = jwt.verify(token, "abc123");
+  }catch (e) {
+    return Promise.reject();
+  }
+  return User.findOne({
+    _id: decoded._id,
+    "tokens.token": token,
+    "tokens.access": "auth"
   });
 };
 
