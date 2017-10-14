@@ -254,8 +254,10 @@ describe("POST users/", () => {
           expect(user.last_name).toBe(tmpUser.last_name);
           expect(user.email).toBe(tmpUser.email);
           done();
+        })
+        .catch((err) => {
+          done(err);
         });
-
       });
   });
 
@@ -284,4 +286,70 @@ describe("POST users/", () => {
       .expect(400)
       .end(done);
   });
+});
+
+
+describe("POST users/login", () => {
+  it("Should login user and return auth token", (done) => {
+    request(app)
+      .post("/users/login")
+      .send({
+        email: usersNew[1].email,
+        password: usersNew[1].password
+      })
+      .expect(200)
+      .expect( (res) => {
+        expect(res.headers["x-auth"]).toBeTruthy();
+      })
+      .end((err, res) => {
+        if(err){
+          return done(err);
+        }
+        User.findOne({email:res.body.email})
+        .then( (user) => {
+          expect(user).toBeTruthy();
+          expect(user.first_name).toBe(usersNew[1].first_name);
+          expect(user.last_name).toBe(usersNew[1].last_name);
+          expect(user.email).toBe(usersNew[1].email);
+          expect(user.tokens[0].access).toBe("auth");
+          expect(user.tokens[0].token).toBe(res.headers["x-auth"]);
+          // expect(user.tokens[0]).toContain({
+          //   access: "auth",
+          //   token: res.headers["x-auth"]
+          // });
+          done();
+        })
+        .catch((err) => {
+          done(err);
+        });
+      });
+      });
+
+      it("Should reject invalid login", (done) => {
+        var userLogin = {
+          email: "perrito@tomates.com",
+          password: "password1",
+        };
+
+        request(app)
+          .post("/users/login")
+          .send(userLogin)
+          .expect(400)
+          .expect( (res) => {
+            expect(res.headers["x-auth"]).toBeFalsy();
+          })
+          .end((err, res) => {
+            if(err){
+              return done(err);
+            }
+            User.findOne({email:res.body.email})
+            .then( (user) => {
+              expect(user).toBeFalsy();
+              done();
+            })
+            .catch((err) => {
+              done(err);
+            });
+          });
+      });
 });
