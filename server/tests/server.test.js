@@ -288,7 +288,6 @@ describe("POST users/", () => {
   });
 });
 
-
 describe("POST users/login", () => {
   it("Should login user and return auth token", (done) => {
     request(app)
@@ -351,5 +350,27 @@ describe("POST users/login", () => {
               done(err);
             });
           });
+      });
+});
+
+describe("DELETE users/me/token", () => {
+  it("Should log out user and remove auth token", (done) => {
+    request(app)
+      .delete("/users/me/token")
+      .set("x-auth", usersNew[0].tokens[0].token)
+      .expect(200)
+      .end((err, res) => {
+        if(err){
+          return done(err);
+        }
+        User.findOne({email: usersNew[0].email})
+        .then( (user) => {
+          expect(user.tokens.length).toBe(0);
+          done();
+        })
+        .catch((err) => {
+          done(err);
+        });
+      });
       });
 });
