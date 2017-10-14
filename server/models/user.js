@@ -71,6 +71,19 @@ userSchema.methods.generateAuthToken = function () {
   });
 };
 
+userSchema.methods.removeToken = function (token){
+  var user = this; //Model methods get called with model as in here where I use User
+
+  return user.update({
+    $pull: {
+      tokens: {
+        token: token
+      }
+    }
+  });
+
+};
+
 userSchema.statics.findByToken = function (token){
   var User = this; //Model methods get called with model as in here where I use User
   var decoded;
