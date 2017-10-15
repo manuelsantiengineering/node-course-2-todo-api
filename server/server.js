@@ -69,7 +69,7 @@ app.post("/todos", authenticate, (req, res) => {
 
   todo.save()
   .then( (doc) => {
-    res.send(doc);
+    res.status(200).send(doc);
   })
   .catch( (err) => {
     res.status(400).send(err);
