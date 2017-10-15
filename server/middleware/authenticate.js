@@ -18,6 +18,21 @@ var authenticate = (req, res, next) =>{
   });
 };
 
+var doNotDuplicateUser = (req, res, next) =>{
+
+  User.findOne(req.email)
+  .then( (user) => {
+    if(user){
+      return Promise.reject(); // Both will be cathed as errors
+    }
+    next();
+  })
+  .catch( (err) => {
+    res.status(400).send(" Error: User email already exists.");
+  });
+};
+
 module.exports = {
-  authenticate
+  authenticate,
+  doNotDuplicateUser
 };

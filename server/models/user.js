@@ -144,6 +144,21 @@ userSchema.pre("save", function(next){
   }
 });
 
+userSchema.pre("save", function(next){
+  var user = this;
+
+  if(user.isModified("password")){ //Verify if the password was modified
+    bcrypt.genSalt(10, (err, salt) => {
+      bcrypt.hash(user.password, salt, (err, hash) => {
+        user.password = hash;
+        next();
+      });
+    });
+  }else{
+    next();
+  }
+});
+
 var User = mongoose.model('User', userSchema);
 
 module.exports = {

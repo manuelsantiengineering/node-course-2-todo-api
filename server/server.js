@@ -8,14 +8,14 @@ const _ = require("lodash");
 const {mongoose, Schema} = require("./db/mongoose.js");
 var {Todo} = require("./models/todo");
 var {User} = require("./models/user");
-var {authenticate} = require("./middleware/authenticate");
+var {authenticate, doNotDuplicateUser} = require("./middleware/authenticate");
 
 var app = express();
 
 //Takes the middleware
 app.use(bodyParser.json());
 
-app.post("/users", (req, res) => {
+app.post("/users", doNotDuplicateUser, (req, res) => {
   var body = _.pick(req.body, ["first_name", "last_name", "email", "password"]); // T0 make sure we only get text and completed options
 
   var newUserToPost = new User(body);
@@ -28,7 +28,7 @@ app.post("/users", (req, res) => {
     res.status(200).header('x-auth', token).send(newUserToPost);
   })
   .catch( (err) => {
-    res.status(400).send(" Error: User email already exists.");
+    res.status(400).send();
   });
 });
 
