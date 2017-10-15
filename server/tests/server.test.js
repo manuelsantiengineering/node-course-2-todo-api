@@ -16,7 +16,6 @@ describe("POST /todos", () => {
     var jsonToSend = {
       text:"Test todo test",
       completed: false
-      // completedAt: 1
     };
 
     request(app)
@@ -34,7 +33,6 @@ describe("POST /todos", () => {
 
         Todo.find(jsonToSend)
         .then( (todos) => {
-          // console.log(JSON.stringify(todos, undefined, 2));
           expect(todos.length).toBe(1);
           expect(todos[0].text).toBe(jsonToSend.text);
           done();
@@ -363,8 +361,10 @@ describe("POST users/login", () => {
           expect(user.first_name).toBe(usersNew[1].first_name);
           expect(user.last_name).toBe(usersNew[1].last_name);
           expect(user.email).toBe(usersNew[1].email);
-          expect(user.tokens[1].access).toBe("auth");
-          expect(user.tokens[1].token).toBe(res.headers["x-auth"]);
+          expect(user.toObject().tokens[1]).toMatchObject({
+            access:"auth",
+            token: res.headers["x-auth"]
+          });
           done();
         })
         .catch((err) => {
