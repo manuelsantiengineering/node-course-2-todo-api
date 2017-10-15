@@ -28,7 +28,7 @@ app.post("/users", (req, res) => {
     res.status(200).header('x-auth', token).send(newUserToPost);
   })
   .catch( (err) => {
-    res.status(400).send();
+    res.status(400).send(" Error: User email already exists.");
   });
 });
 

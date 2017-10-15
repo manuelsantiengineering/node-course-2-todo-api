@@ -22,7 +22,7 @@ const usersNew = [
           {
             _id: user1Id,
             access: "auth"
-          }, "abc123").toString()
+          }, process.env.JWT_SECRET).toString()
       }
     ]
   },
@@ -39,7 +39,7 @@ const usersNew = [
           {
             _id: user2Id,
             access: "auth"
-          }, "abc123").toString()
+          }, process.env.JWT_SECRET).toString()
       }
     ]
   }
