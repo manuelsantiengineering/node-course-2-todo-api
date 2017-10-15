@@ -111,12 +111,12 @@ userSchema.statics.findByCredentials = function (email, password){
       if(!user){
         return Promise.reject();
       }
-
       return new Promise( (resolve, reject) => {
         bcrypt.compare(password, user.password, (err, res) =>{
           if(!res){
             reject();
           }else{
+
             resolve(user);
           }
         });
@@ -128,21 +128,6 @@ userSchema.statics.findByCredentials = function (email, password){
   }
 
 };
-
-userSchema.pre("save", function(next){
-  var user = this;
-
-  if(user.isModified("password")){ //Verify if the password was modified
-    bcrypt.genSalt(10, (err, salt) => {
-      bcrypt.hash(user.password, salt, (err, hash) => {
-        user.password = hash;
-        next();
-      });
-    });
-  }else{
-    next();
-  }
-});
 
 userSchema.pre("save", function(next){
   var user = this;

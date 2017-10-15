@@ -47,7 +47,7 @@ app.post("/users/login", (req, res) => {
     })
   })
   .catch( (err) => {
-    res.status(400).send();
+    res.status(400).send(" Error: User not found");
   });
 });
 
