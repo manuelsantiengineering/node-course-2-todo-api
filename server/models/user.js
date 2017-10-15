@@ -24,7 +24,9 @@ var userSchema = new Schema ({
     required: [true, "Email name must be defined"],
     unique: true,
     validate : {
-      validator: validator.isEmail,
+      validator: (value) => {
+        return validator.isEmail(value);
+      },
       message: "{VALUE} is not a valid email!"
     }
   },

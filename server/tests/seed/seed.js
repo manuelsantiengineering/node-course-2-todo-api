@@ -31,7 +31,17 @@ const usersNew = [
     first_name: "Cebollin",
     last_name: "Violeta",
     email: "cebollin@tomates.com",
-    password: "password2"
+    password: "password2",
+    tokens: [
+      {
+        access: "auth",
+        token: jwt.sign(
+          {
+            _id: user2Id,
+            access: "auth"
+          }, "abc123").toString()
+      }
+    ]
   }
 ];
 
@@ -40,12 +50,14 @@ const todosNew = [
     _id: new ObjectID(),
     text: "First Test todo",
     completed: false,
+    _creator: user1Id
   },
   {
     _id: new ObjectID(),
     text: "Second Test todo",
     completed: true,
-    completedAt: 2
+    completedAt: 2,
+    _creator: user2Id
   }
 ];
 

@@ -61,29 +61,10 @@ app.delete("/users/me/token", authenticate, (req, res) => {
   });
 });
 
-
-
-
-
-
-
-
-
-app.get("/todos", (req, res) => {
-  Todo.find()
-  .then( (todos) => {
-    res.send({todos});
-  })
-  .catch( (err) => {
-    res.status(400).send(err);
-  });
-});
-
-
-
-app.post("/todos", (req, res) => {
+app.post("/todos", authenticate, (req, res) => {
   var todo = new Todo({
-    text: req.body.text
+    text: req.body.text,
+    _creator: req.user._id
   });
 
   todo.save()
@@ -95,23 +76,28 @@ app.post("/todos", (req, res) => {
   });
 });
 
-app.get("/todos", (req, res) => {
-  Todo.find()
+app.get("/todos", authenticate, (req, res) => {
+  Todo.find({
+    _creator: req.user._id
+  })
   .then( (todos) => {
-    res.send({todos});
+    res.status(200).send({todos});
   })
   .catch( (err) => {
     res.status(400).send(err);
   });
 });
 
-app.get("/todos/:id", (req, res) => {
+app.get("/todos/:id", authenticate, (req, res) => {
   var id = req.params.id;
   if(!ObjectID.isValid(id)){
     return res.status(400).send("Error: Not a valid id.");
   }
   else {
-    Todo.findById(id)
+    Todo.findOne({
+      _id: id,
+      _creator: req.user._id
+    })
     .then( (todo) => {
       if(!todo){
         return res.status(404).send("Error: Unable to find id.");
@@ -124,13 +110,16 @@ app.get("/todos/:id", (req, res) => {
   }
 });
 
-app.delete("/todos/:id", (req, res) => {
+app.delete("/todos/:id", authenticate, (req, res) => {
   var id = req.params.id;
   if(!ObjectID.isValid(id)){
     return res.status(400).send("Error: Not a valid id.");
   }
   else {
-    Todo.findByIdAndRemove(id)
+    Todo.findOneAndRemove({
+      _id: id,
+      _creator: req.user._id
+    })
     .then( (todo) => {
       if(!todo){
         return res.status(404).send("Error: Unable to find id.");
@@ -143,7 +132,7 @@ app.delete("/todos/:id", (req, res) => {
   }
 });
 
-app.patch("/todos/:id", (req, res) => {
+app.patch("/todos/:id", authenticate, (req, res) => {
   var id = req.params.id;
   var body = _.pick(req.body, ["text", "completed"]); // T0 make sure we only get text and completed options
 
@@ -159,7 +148,12 @@ app.patch("/todos/:id", (req, res) => {
     body.completedAt = null;
   }
 
-  Todo.findByIdAndUpdate(id, {
+  Todo.findOneAndUpdate(
+    {
+      _id: id,
+      _creator: req.user._id
+    }
+    , {
     $set: body
   }, {
     new: true
@@ -176,15 +170,11 @@ app.patch("/todos/:id", (req, res) => {
 
 });
 
+
+
 app.listen(process.env.PORT, () => {
   console.log(`Started on port ${process.env.PORT}`);
 });
-
-
-
-
-
-
 
 module.exports = {
   app
