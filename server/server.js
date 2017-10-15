@@ -122,7 +122,7 @@ app.delete("/todos/:id", authenticate, (req, res) => {
     })
     .then( (todo) => {
       if(!todo){
-        return res.status(404).send("Error: Unable to find id.");
+        return res.status(404).send("Error: Unable to find.");
       }
       res.status(200).send({todo});
     })
