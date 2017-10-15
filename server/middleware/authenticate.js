@@ -7,7 +7,7 @@ var authenticate = (req, res, next) =>{
   User.findByToken(token)
   .then( (user) => {
     if(!user){
-      return Promise.reject(); // Both will be cathed as errors
+      return Promise.reject(); // Both will be called as errors
     }
     req.user = user;
     req.token = token;
@@ -19,11 +19,10 @@ var authenticate = (req, res, next) =>{
 };
 
 var doNotDuplicateUser = (req, res, next) =>{
-
-  User.findOne(req.email)
+  User.findOne({email:req.body.email})
   .then( (user) => {
     if(user){
-      return Promise.reject(); // Both will be cathed as errors
+      return Promise.reject(); // Both will be called as errors
     }
     next();
   })
