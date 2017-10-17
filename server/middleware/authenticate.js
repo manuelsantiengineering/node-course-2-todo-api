@@ -18,20 +18,20 @@ var authenticate = (req, res, next) =>{
   });
 };
 
-var doNotDuplicateUser = (req, res, next) =>{
-  User.findOne({email:req.body.email})
-  .then( (user) => {
-    if(user){
-      return Promise.reject(); // Both will be called as errors
-    }
-    next();
-  })
-  .catch( (err) => {
-    res.status(400).send(" Error: User email already exists.");
-  });
-};
+// var doNotDuplicateUser = (req, res, next) =>{
+//   User.findOne({email:req.body.email})
+//   .then( (user) => {
+//     if(user){
+//       return Promise.reject(); // Both will be called as errors
+//     }
+//     next();
+//   })
+//   .catch( (err) => {
+//     res.status(400).send(" Error: User email already exists.");
+//   });
+// };
 
 module.exports = {
-  authenticate,
-  doNotDuplicateUser
+  authenticate
+  // doNotDuplicateUser
 };
