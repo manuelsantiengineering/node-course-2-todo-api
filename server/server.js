@@ -14,124 +14,110 @@ var app = express();
 
 //Takes the middleware
 app.use(bodyParser.json());
-app.post("/users", (req, res) => {
-  var body = _.pick(req.body, ["first_name", "last_name", "email", "password"]); // T0 make sure we only get text and completed options
-
-  var newUserToPost = new User(body);
-
-  newUserToPost.save()
-  .then( () => {     // doc is the same as newUserToPost
-    return newUserToPost.generateAuthToken();
-  })
-  .then( (token) => {
+app.post("/users", async (req, res) => {
+  const body = _.pick(req.body, ["first_name", "last_name", "email", "password"]); // T0 make sure we only get text and completed options
+  try{
+    var newUserToPost = new User(body);
+    await newUserToPost.save();
+    const token = await newUserToPost.generateAuthToken();
     res.status(200).header('x-auth', token).send(newUserToPost);
-  })
-  .catch( (err) => {
+  } catch(e){
     res.status(400).send("Error: User already exists.");
-  });
+  }
 });
 
 app.get("/users/me", authenticate, (req, res) => {
   res.status(200).send(req.user);
 });
 
-app.post("/users/login", (req, res) => {
-  var body = _.pick(req.body, ["email", "password"]);
+app.post("/users/login", async (req, res) => {
+  const body = _.pick(req.body, ["email", "password"]);
 
-  User.findByCredentials(body.email, body.password)
-  .then( (user) => {
-    user.generateAuthToken()
-    .then( (token) => {
-      res.status(200).header('x-auth', token).send(user);
-    })
-  })
-  .catch( (err) => {
+  try{
+    const user = await User.findByCredentials(body.email, body.password);
+    const token = await user.generateAuthToken();
+    res.status(200).header('x-auth', token).send(user);
+  } catch(e){
     res.status(400).send(" Error: User not found");
-  });
+  }
 });
 
-app.delete("/users/me/token", authenticate, (req, res) => {
-  req.user.removeToken(req.token)
-  .then( () => {
+app.delete("/users/me/token", authenticate, async (req, res) => {
+  try{
+    await req.user.removeToken(req.token);
     res.status(200).send();
-  })
-  .catch( (err) => {
+  }catch (e){
     res.status(400).send();
-  });
+  }
 });
 
-app.post("/todos", authenticate, (req, res) => {
+app.post("/todos", authenticate, async (req, res) => {
   var todo = new Todo({
     text: req.body.text,
     _creator: req.user._id
   });
-
-  todo.save()
-  .then( (doc) => {
+  try{
+    const doc = await todo.save();
     res.status(200).send(doc);
-  })
-  .catch( (err) => {
-    res.status(400).send(err);
-  });
+  } catch(e){
+    res.status(400).send(e);
+  }
 });
 
-app.get("/todos", authenticate, (req, res) => {
-  Todo.find({
-    _creator: req.user._id
-  })
-  .then( (todos) => {
+app.get("/todos", authenticate, async (req, res) => {
+  try{
+    const todos = await Todo.find({
+      _creator: req.user._id
+    });
     res.status(200).send({todos});
-  })
-  .catch( (err) => {
-    res.status(400).send(err);
-  });
+  } catch(e){
+    res.status(400).send(e);
+  }
 });
 
-app.get("/todos/:id", authenticate, (req, res) => {
+app.get("/todos/:id", authenticate, async (req, res) => {
   var id = req.params.id;
   if(!ObjectID.isValid(id)){
     return res.status(400).send("Error: Not a valid id.");
   }
   else {
-    Todo.findOne({
-      _id: id,
-      _creator: req.user._id
-    })
-    .then( (todo) => {
+    try{
+      const todo = await Todo.findOne({
+        _id: id,
+        _creator: req.user._id
+      });
       if(!todo){
         return res.status(404).send("Error: Unable to find id.");
       }
       res.status(200).send({todo});
-    })
-    .catch ( (err) => {
+    } catch(e){
       res.status(400).send();
-    });
+    }
   }
 });
 
-app.delete("/todos/:id", authenticate, (req, res) => {
-  var id = req.params.id;
+app.delete("/todos/:id", authenticate, async (req, res) => {
+  const id = req.params.id;
   if(!ObjectID.isValid(id)){
-    return res.status(400).send("Error: Not a valid id.");
+    res.status(400).send("Error: Not a valid id.");
   }
   else {
-    Todo.findOneAndRemove({
-      _id: id,
-      _creator: req.user._id
-    })
-    .then( (todo) => {
+    try{
+      const todo = await Todo.findOneAndRemove({
+        _id: id,
+        _creator: req.user._id
+      });
       if(!todo){
         return res.status(404).send("Error: Unable to find.");
       }
       res.status(200).send({todo});
-    })
-    .catch ( (err) => {
+    } catch(e){
       res.status(400).send();
-    });
+    }
   }
 });
 
-app.patch("/todos/:id", authenticate, (req, res) => {
+app.patch("/todos/:id", authenticate, async (req, res) => {
   var id = req.params.id;
   var body = _.pick(req.body, ["text", "completed"]); // T0 make sure we only get text and completed options
 
@@ -146,27 +132,24 @@ app.patch("/todos/:id", authenticate, (req, res) => {
     body.completed = false;
     body.completedAt = null;
   }
-
-  Todo.findOneAndUpdate(
-    {
-      _id: id,
-      _creator: req.user._id
-    }
-    , {
-    $set: body
-  }, {
-    new: true
-  })
-  .then( (todo) => {
+  try{
+    const todo = await Todo.findOneAndUpdate(
+      {
+        _id: id,
+        _creator: req.user._id
+      }
+      , {
+      $set: body
+    }, {
+      new: true
+    });
     if(!todo){
       return res.status(404).send("Error: Unable to find id.");
     }
     res.status(200).send({todo});
-  })
-  .catch ( (err) => {
+  } catch (e){
     res.status(400).send();
-  });
-
+  }
 });
 
 
